@@ -1,7 +1,24 @@
 import { Button } from "@/components/ui/button";
-import { Building2 } from "lucide-react";
+import { Building2, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
+  const { user, signOut } = useAuthContext();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -27,12 +44,29 @@ const Header = () => {
           </nav>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost">
-              Sign In
-            </Button>
-            <Button>
-              Get Started
-            </Button>
+            {user ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  Welcome, {user.email}
+                </span>
+                <Button variant="ghost" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+                <Link to="/dashboard">
+                  <Button>Dashboard</Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+                <Link to="/auth">
+                  <Button>Get Started</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
