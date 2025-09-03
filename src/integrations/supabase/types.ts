@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      investments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          investment_type: string | null
+          korapay_reference: string | null
+          notes: string | null
+          reference: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          investment_type?: string | null
+          korapay_reference?: string | null
+          notes?: string | null
+          reference: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          investment_type?: string | null
+          korapay_reference?: string | null
+          notes?: string | null
+          reference?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
