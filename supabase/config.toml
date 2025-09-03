@@ -2,6 +2,3 @@ project_id = "czknjslirxpzjipqxtid"
 
 [functions.create-investment]
 verify_jwt = true
-
-[functions.cors]
-allowed_origins = "http://localhost:8080,http://localhost:5173"
