@@ -9,7 +9,7 @@ import { TrendingUp, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-const InvestmentModal = () => {
+const InvestmentModal = ({ onInvestmentSuccess }: { onInvestmentSuccess: () => void }) => {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +48,7 @@ const InvestmentModal = () => {
           title: "Investment Initiated",
           description: "Complete your payment in the new tab to confirm your investment",
         });
+        onInvestmentSuccess(); // Notify parent component
       } else {
         throw new Error('Failed to create investment session');
       }
