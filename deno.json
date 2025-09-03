@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "deploy": "supabase functions deploy korapay-webhook"
+  },
+  "imports": {
+    "std/": "https://deno.land/std@0.204.0/"
+  }
+}

@@ -1,20 +1,27 @@
-import { serve } from "https://deno.land/std@0.204.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.31.0'
 
-const KORAPAY_SECRET_KEY = Deno.env.get("KORAPAY_SECRET_KEY");
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
-// Function to verify the signature from Korapay using Web Crypto API
-async function verifySignature(signature: string, body: unknown): Promise<boolean> {
-  if (!KORAPAY_SECRET_KEY) {
-    console.error("KORAPAY_SECRET_KEY is not set.");
+console.log('Hello from Korapay webhook!')
+
+// Function to verify the signature from Korapay
+async function verifySignature(signature: string | null, body: unknown): Promise<boolean> {
+  if (!KORAPAY_SECRET_KEY || !signature) {
+    console.error("Missing required authentication parameters");
+    console.log("Secret key present:", !!KORAPAY_SECRET_KEY);
+    console.log("Signature present:", !!signature);
     return false;
   }
 
   try {
+    // Log the received signature and body for debugging
+    console.log("Received signature:", signature);
+    console.log("Received body:", JSON.stringify(body));
+
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
       "raw",
@@ -35,7 +42,15 @@ async function verifySignature(signature: string, body: unknown): Promise<boolea
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
 
-    return calculatedSignature === signature;
+    console.log("Calculated signature:", calculatedSignature);
+    
+    // Try both direct comparison and case-insensitive comparison
+    const isValid = 
+      calculatedSignature === signature ||
+      calculatedSignature.toLowerCase() === signature.toLowerCase();
+
+    console.log("Signature verification result:", isValid);
+    return isValid;
   } catch (error) {
     console.error("Error verifying signature:", error);
     return false;
@@ -43,13 +58,14 @@ async function verifySignature(signature: string, body: unknown): Promise<boolea
 }
 
 serve(async (req) => {
+  // Handle CORS
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const signature = req.headers.get("x-korapay-signature");
-    const body = await req.json();
+    const body = await req.json()
+    console.log('Received webhook:', JSON.stringify(body, null, 2))
 
     // Verify the webhook signature for security
     if (!verifySignature(signature, body)) {

@@ -1,0 +1,8 @@
+{
+  "tasks": {
+    "deploy": "supabase functions deploy"
+  },
+  "imports": {
+    "std/": "https://deno.land/std@0.204.0/"
+  }
+}
