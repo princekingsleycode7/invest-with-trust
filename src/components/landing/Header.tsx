@@ -5,8 +5,27 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
-  const { user, signOut } = useAuthContext();
+  const { user, signOut, loading } = useAuthContext();
   const { toast } = useToast();
+
+  // Don't render until auth context is ready
+  if (loading) {
+    return (
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-foreground">RehobothBank</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="animate-pulse h-8 w-20 bg-muted rounded"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   const handleSignOut = async () => {
     const { error } = await signOut();
