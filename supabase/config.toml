@@ -1,1 +1,4 @@
 project_id = "czknjslirxpzjipqxtid"
+
+[functions.create-investment]
+verify_jwt = true

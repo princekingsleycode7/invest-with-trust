@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Building2, TrendingUp, Wallet, Settings, BarChart3, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
+import InvestmentModal from "@/components/investment/InvestmentModal";
 
 const Dashboard = () => {
   const { user } = useAuthContext();
@@ -132,7 +133,7 @@ const Dashboard = () => {
             </div>
 
             <div className="mt-6 flex gap-4">
-              <Button>New Investment</Button>
+              <InvestmentModal />
               <Button variant="outline">
                 <Settings className="h-4 w-4 mr-2" />
                 Manage Portfolio
