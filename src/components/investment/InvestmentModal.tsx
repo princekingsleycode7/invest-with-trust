@@ -3,15 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TrendingUp, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-const InvestmentModal = ({ onInvestmentSuccess }: { onInvestmentSuccess: () => void }) => {
+const InvestmentModal = ({ project, onInvestmentSuccess }: { project?: any, onInvestmentSuccess?: () => void }) => {
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState("USD");
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
@@ -32,7 +30,8 @@ const InvestmentModal = ({ onInvestmentSuccess }: { onInvestmentSuccess: () => v
       const { data, error } = await supabase.functions.invoke('create-investment', {
         body: {
           amount: parseFloat(amount),
-          currency: currency
+          currency: 'NGN', // Assuming NGN for now
+          project_id: project?.id
         }
       });
 
@@ -48,7 +47,7 @@ const InvestmentModal = ({ onInvestmentSuccess }: { onInvestmentSuccess: () => v
           title: "Investment Initiated",
           description: "Complete your payment in the new tab to confirm your investment",
         });
-        onInvestmentSuccess(); // Notify parent component
+        if (onInvestmentSuccess) onInvestmentSuccess();
       } else {
         throw new Error('Failed to create investment session');
       }
@@ -67,22 +66,40 @@ const InvestmentModal = ({ onInvestmentSuccess }: { onInvestmentSuccess: () => v
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2 w-full">
           <TrendingUp className="h-4 w-4" />
-          Make Investment
+          {project ? "Invest in Project" : "Make Investment"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>New Investment</DialogTitle>
+          <DialogTitle>{project ? `Invest in ${project.name}` : 'New Investment'}</DialogTitle>
           <DialogDescription>
-            Enter the amount you'd like to invest. You'll be redirected to Korapay to complete the payment.
+            {project ? `You are investing in ${project.name}.` : "Enter the amount you'd like to invest."} You'll be redirected to Korapay to complete the payment.
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
+          {project && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{project.name}</CardTitle>
+                <CardDescription>{project.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Target</span>
+                  <span className="text-sm font-bold">${project.target_amount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Raised</span>
+                  <span className="text-sm font-bold">${project.current_amount.toLocaleString()}</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
           <div className="space-y-2">
-            <Label htmlFor="amount">Investment Amount</Label>
+            <Label htmlFor="amount">Investment Amount (NGN)</Label>
             <div className="relative">
               <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -97,48 +114,10 @@ const InvestmentModal = ({ onInvestmentSuccess }: { onInvestmentSuccess: () => v
               />
             </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
-            <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select currency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="USD">USD - US Dollar</SelectItem>
-                <SelectItem value="NGN">NGN - Nigerian Naira</SelectItem>
-                <SelectItem value="GHS">GHS - Ghanaian Cedi</SelectItem>
-                <SelectItem value="KES">KES - Kenyan Shilling</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>Investment Summary:</strong>
-              <br />
-              Amount: {amount ? `${currency} ${parseFloat(amount).toLocaleString()}` : 'Enter amount'}
-              <br />
-              Payment Method: Korapay (Card, Bank Transfer)
-            </p>
-          </div>
-
-          <div className="flex gap-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleInvest}
-              disabled={isLoading || !amount}
-              className="flex-1"
-            >
-              {isLoading ? "Processing..." : "Proceed to Payment"}
-            </Button>
-          </div>
+          
+          <Button onClick={handleInvest} disabled={isLoading} className="w-full">
+            {isLoading ? "Processing..." : "Proceed to Payment"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

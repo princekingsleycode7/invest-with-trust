@@ -28,7 +28,7 @@ serve(async (req) => {
       throw new Error('User not authenticated');
     }
 
-    const { amount, currency = 'USD' } = await req.json();
+    const { amount, currency = 'NGN', project_id } = await req.json();
 
     if (!amount || amount <= 0) {
       throw new Error('Valid amount is required');
@@ -53,7 +53,7 @@ serve(async (req) => {
       merchant_bears_cost: true
     };
 
-    console.log('Creating Korapay checkout session:', { reference, amount, currency });
+    console.log('Creating Korapay checkout session:', { reference, amount, currency, project_id });
 
     // Initialize Korapay checkout
     const korapayResponse = await fetch('https://api.korapay.com/merchant/api/v1/charges/initialize', {
@@ -93,6 +93,7 @@ serve(async (req) => {
         reference: reference,
         status: 'pending',
         korapay_reference: korapayResult.data.reference,
+        project_id: project_id,
         created_at: new Date().toISOString()
       });
 

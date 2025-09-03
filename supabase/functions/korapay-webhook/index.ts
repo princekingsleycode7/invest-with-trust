@@ -30,7 +30,7 @@ serve(async (req) => {
       // Find and update investment
       const { data: investment, error: findError } = await supabase
         .from("investments")
-        .select("id, user_id, status")
+        .select("id, user_id, status, project_id")
         .eq("korapay_reference", reference)
         .single();
 
@@ -59,6 +59,21 @@ serve(async (req) => {
         return new Response(JSON.stringify({ received: true, error: "Update failed" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
+      }
+      
+      // If there's a project_id, update the project's current_amount
+      if (investment.project_id) {
+        const { error: rpcError } = await supabase.rpc('increment_project_amount', {
+          p_id: investment.project_id,
+          amount_to_add: amount
+        });
+
+        if (rpcError) {
+          console.error("❌ Failed to increment project amount:", rpcError);
+          // Note: The investment is already marked active. You might want to handle this case.
+        } else {
+          console.log(`📈 Project ${investment.project_id} amount updated.`);
+        }
       }
 
       console.log(`✅ Investment ${investment.id} activated successfully!`);
