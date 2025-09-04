@@ -18,23 +18,150 @@ import {
 import { ProjectDetails } from "@/types/schema";
 import { formatCurrency, formatPercentage } from "@/utils/formatters";
 import InvestmentModal from "@/components/investment/InvestmentModal";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProjectDetailsViewProps {
   projectDetails: ProjectDetails;
   onBack: () => void;
 }
 
+interface ProjectFunding {
+  target_amount: number;
+  current_amount: number;
+  status: string;
+}
+
 const ProjectDetailsView = ({ projectDetails, onBack }: ProjectDetailsViewProps) => {
+  const [projectFunding, setProjectFunding] = useState<ProjectFunding>({
+    target_amount: projectDetails.total_funding_needed,
+    current_amount: 0,
+    status: 'active'
+  });
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Fetch current funding data from database
+  const fetchProjectFunding = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('target_amount, current_amount, status')
+        .eq('id', projectDetails.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching project funding:', error);
+        toast({
+          title: "Error",
+          description: "Could not fetch current funding data.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data) {
+        setProjectFunding({
+          target_amount: data.target_amount || projectDetails.total_funding_needed,
+          current_amount: data.current_amount || 0,
+          status: data.status || 'active'
+        });
+      }
+    } catch (error) {
+      console.error('Error in fetchProjectFunding:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Set up real-time subscription for project funding updates
+  useEffect(() => {
+    // Initial fetch
+    fetchProjectFunding();
+
+    // Subscribe to real-time changes for this specific project
+    const channel = supabase
+      .channel(`project-funding-${projectDetails.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'projects',
+          filter: `id=eq.${projectDetails.id}`
+        },
+        (payload) => {
+          console.log('Real-time project funding update received:', payload);
+          
+          // Update the funding state with new data
+          const newData = payload.new;
+          setProjectFunding({
+            target_amount: newData.target_amount || projectDetails.total_funding_needed,
+            current_amount: newData.current_amount || 0,
+            status: newData.status || 'active'
+          });
+
+          // Show a toast notification for funding updates
+          if (payload.old.current_amount !== newData.current_amount) {
+            const difference = newData.current_amount - payload.old.current_amount;
+            if (difference > 0) {
+              toast({
+                title: "New Investment!",
+                description: `This project just received ${formatCurrency(difference)} in funding!`,
+                duration: 5000,
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription when component unmounts
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [projectDetails.id, toast, projectDetails.total_funding_needed]);
+
   const project = {
     id: projectDetails.id,
     name: projectDetails.name,
     description: projectDetails.executive_summary.slice(0, 200) + "...",
-    target_amount: projectDetails.total_funding_needed,
-    current_amount: projectDetails.total_funding_needed * 0.56, // Mock current amount
-    status: 'active'
+    target_amount: projectFunding.target_amount,
+    current_amount: projectFunding.current_amount,
+    status: projectFunding.status
   };
 
   const progressPercentage = (project.current_amount / project.target_amount) * 100;
+  const isFullyFunded = project.current_amount >= project.target_amount;
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={onBack} className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Projects
+          </Button>
+        </div>
+        
+        <Card className="overflow-hidden">
+          <div className="h-64 bg-muted animate-pulse" />
+          <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="text-center">
+                  <div className="h-8 w-8 bg-muted rounded mx-auto mb-2 animate-pulse" />
+                  <div className="h-4 bg-muted rounded w-20 mx-auto mb-1 animate-pulse" />
+                  <div className="h-6 bg-muted rounded w-24 mx-auto animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -48,7 +175,7 @@ const ProjectDetailsView = ({ projectDetails, onBack }: ProjectDetailsViewProps)
 
       {/* Hero Section */}
       <Card className="overflow-hidden">
-        <div className="relative h-64 bg-gradient-to-r from-primary/10 to-accent/5">
+        <div className={`relative h-64 bg-gradient-to-r ${isFullyFunded ? 'from-green-500/10 to-green-300/5' : 'from-primary/10 to-accent/5'}`}>
           <div className="absolute inset-0 bg-black/20" />
           <div className="relative h-full flex items-center justify-center">
             <div className="text-center text-white">
@@ -58,8 +185,8 @@ const ProjectDetailsView = ({ projectDetails, onBack }: ProjectDetailsViewProps)
                   <Building2 className="h-4 w-4 mr-1" />
                   Manufacturing
                 </Badge>
-                <Badge variant="secondary" className="bg-green-500/20 text-white border-green-500/30">
-                  Active
+                <Badge variant="secondary" className={`${isFullyFunded ? 'bg-green-500/20 border-green-500/30' : 'bg-blue-500/20 border-blue-500/30'} text-white`}>
+                  {isFullyFunded ? 'Fully Funded' : 'Active'}
                 </Badge>
               </div>
             </div>
@@ -71,12 +198,14 @@ const ProjectDetailsView = ({ projectDetails, onBack }: ProjectDetailsViewProps)
             <div className="text-center">
               <Target className="h-8 w-8 text-primary mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Target Amount</p>
-              <p className="text-2xl font-bold">{formatCurrency(projectDetails.total_funding_needed)}</p>
+              <p className="text-2xl font-bold">{formatCurrency(project.target_amount)}</p>
             </div>
             <div className="text-center">
-              <DollarSign className="h-8 w-8 text-accent mx-auto mb-2" />
+              <DollarSign className={`h-8 w-8 mx-auto mb-2 ${isFullyFunded ? 'text-green-600' : 'text-accent'}`} />
               <p className="text-sm text-muted-foreground">Current Funding</p>
-              <p className="text-2xl font-bold">{formatCurrency(project.current_amount)}</p>
+              <p className={`text-2xl font-bold ${isFullyFunded ? 'text-green-600' : ''}`}>
+                {formatCurrency(project.current_amount)}
+              </p>
             </div>
             <div className="text-center">
               <TrendingUp className="h-8 w-8 text-success mx-auto mb-2" />
@@ -94,16 +223,49 @@ const ProjectDetailsView = ({ projectDetails, onBack }: ProjectDetailsViewProps)
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Funding Progress</span>
               <span className="text-sm font-bold">
-                {formatPercentage(progressPercentage)} funded
+                {formatPercentage(Math.min(progressPercentage, 100))} funded
               </span>
             </div>
-            <Progress value={progressPercentage} className="h-3 mb-4" />
-            <div className="flex justify-center">
-              <InvestmentModal project={project} />
+            <Progress 
+              value={Math.min(progressPercentage, 100)} 
+              className={`h-3 mb-4 ${isFullyFunded ? '[&>div]:bg-green-500' : ''}`} 
+            />
+            
+            {/* Additional funding info */}
+            <div className="flex justify-between items-center mb-4 text-sm text-muted-foreground">
+              <span>Remaining needed: {formatCurrency(Math.max(0, project.target_amount - project.current_amount))}</span>
+              <span>Progress: {formatCurrency(project.current_amount)} / {formatCurrency(project.target_amount)}</span>
             </div>
+            
+            <div className="flex justify-center">
+              <InvestmentModal 
+                project={project} 
+                onInvestmentSuccess={fetchProjectFunding}
+                disabled={isFullyFunded}
+              />
+            </div>
+            
+            {isFullyFunded && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
+                <p className="text-green-800 font-medium">
+                  🎉 This project has reached its funding goal!
+                </p>
+                <p className="text-green-600 text-sm mt-1">
+                  Thank you to all investors who made this possible.
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
+
+      {/* Real-time funding indicator */}
+      <div className="text-center">
+        <Badge variant="outline" className="text-xs">
+          <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse" />
+          Live funding updates
+        </Badge>
+      </div>
 
       {/* Detailed Information Tabs */}
       <Tabs defaultValue="overview" className="w-full">

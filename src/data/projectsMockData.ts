@@ -4,7 +4,7 @@ import { Project, ProjectDetails } from '../types/schema';
 // Mock data for projects list
 export const mockProjects: Project[] = [
   {
-    id: "1",
+    id: "9c124a52-2cb8-4166-9636-d3280b4d7986",
     name: "Charcoal Briquette Manufacturing Company",
     description: "Converting sawdust waste into high-quality fuel briquettes for commercial and domestic use in Nigeria",
     category: ProjectCategory.MANUFACTURING as const,
@@ -19,7 +19,7 @@ export const mockProjects: Project[] = [
     image_url: "https://images.unsplash.com/photo-1469289759076-d1484757abc3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwbWFudWZhY3R1cmluZyUyMGluZHVzdHJpYWwlMjBtYWNoaW5lcnl8ZW58MHwwfHx8MTc1NzAwNjY2OHww&ixlib=rb-4.1.0&q=85"
   },
   {
-    id: "2", 
+    id: "49389018-0f07-446d-aa5d-2c5c27da70e0", 
     name: "Green Energy Solar Farm",
     description: "Large-scale solar energy project with guaranteed government contracts",
     category: ProjectCategory.ENERGY as const,
@@ -34,7 +34,7 @@ export const mockProjects: Project[] = [
     image_url: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxzb2xhciUyMHBhbmVscyUyMHJlbmV3YWJsZSUyMGVuZXJneSUyMHNvbGFyJTIwZmFybSUyMHBob3Rvdm9sdGFpY3xlbnwwfDB8fGJsdWV8MTc1NzAwNjY2N3ww&ixlib=rb-4.1.0&q=85"
   },
   {
-    id: "3",
+    id: "6b4ef312-9c09-488e-86fa-d0eeaf2a242b",
     name: "Urban Real Estate Development", 
     description: "Mixed-use development in prime downtown location",
     category: ProjectCategory.REAL_ESTATE as const,
@@ -52,7 +52,7 @@ export const mockProjects: Project[] = [
 
 // Mock data for detailed project view
 export const mockProjectDetails: ProjectDetails = {
-  id: "1",
+  id: "9c124a52-2cb8-4166-9636-d3280b4d7986",
   name: "Charcoal Briquette Manufacturing Company - Nigeria",
   executive_summary: "We are seeking funding to establish a charcoal briquette manufacturing company in Nigeria, converting sawdust waste into high-quality fuel briquettes for commercial and domestic use. This venture addresses Nigeria's growing energy needs while providing a sustainable solution to wood waste management.",
   business_overview: "Our proposed facility will utilize proven Chinese manufacturing technology capable of producing 100-150kg per hour of premium charcoal briquettes using locally sourced sawdust. The operation will serve restaurants, commercial kitchens, industrial heating applications, and households across Nigeria.",
