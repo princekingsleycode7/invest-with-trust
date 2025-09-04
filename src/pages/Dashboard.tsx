@@ -119,6 +119,37 @@ const Dashboard = () => {
     }
   }, [user]);
 
+// ✨ NEW: Add this useEffect for Realtime updates
+  useEffect(() => {
+    if (!user) return;
+
+    // Subscribe to changes in the 'profiles' table for the current user
+    const channel = supabase
+      .channel(`profiles-changes-for-${user.id}`)
+      .on(
+        'postgres_changes',
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'profiles', 
+          filter: `user_id=eq.${user.id}` 
+        },
+        (payload) => {
+          console.log('Realtime update received for profile:', payload);
+          // When the user's profile is updated, refresh all dashboard data
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    // Cleanup function to remove the subscription when the component unmounts
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchDashboardData]); // Rerun if user or fetch function changes
+
+
+
   useEffect(() => {
     if (searchParams.get('investment') === 'success') {
       toast({
