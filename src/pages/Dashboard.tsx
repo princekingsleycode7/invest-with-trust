@@ -10,19 +10,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface Investment {
-  id: number;
+  id: string;
   name: string;
   amount: number;
   currentValue: number;
   status: string;
+  created_at: string;
 }
 
 interface Project {
-  id: number;
+  id: string;
   name: string;
   description: string;
   target_amount: number;
   current_amount: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Stats {
@@ -86,14 +90,14 @@ const Dashboard = () => {
         profitPercentage: profitPercentage,
       });
 
-      // The 'name' and 'currentValue' are not in the investment table, so I'll mock them for now.
-      // You might want to adjust your table or join with a projects table.
+      // Format investments with project names
       const formattedInvestments = investmentData.map(inv => ({
         id: inv.id,
-        name: inv.korapay_reference || "Tech Growth Fund", // Using reference as a placeholder name
+        name: inv.korapay_reference || "General Investment",
         amount: inv.amount,
         currentValue: inv.amount, // Placeholder, you'll need to calculate this
         status: inv.status,
+        created_at: inv.created_at,
       }));
       setInvestments(formattedInvestments);
 

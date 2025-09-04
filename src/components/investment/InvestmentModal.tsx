@@ -1,18 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrendingUp, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-const InvestmentModal = ({ project, onInvestmentSuccess }: { project?: any, onInvestmentSuccess?: () => void }) => {
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  target_amount: number;
+  current_amount: number;
+  status: string;
+}
+
+const InvestmentModal = ({ project, onInvestmentSuccess }: { project?: Project, onInvestmentSuccess?: () => void }) => {
   const [amount, setAmount] = useState("");
+  const [selectedProject, setSelectedProject] = useState<string>(project?.id || "");
+  const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('status', 'active');
+      
+      if (error) {
+        console.error('Error fetching projects:', error);
+        return;
+      }
+      
+      setProjects(data || []);
+      if (data && data.length > 0 && !project) {
+        setSelectedProject(data[0].id);
+      }
+    };
+
+    if (open && !project) {
+      fetchProjects();
+    }
+  }, [open, project]);
 
   const handleInvest = async () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -30,8 +65,8 @@ const InvestmentModal = ({ project, onInvestmentSuccess }: { project?: any, onIn
       const { data, error } = await supabase.functions.invoke('create-investment', {
         body: {
           amount: parseFloat(amount),
-          currency: 'NGN', // Assuming NGN for now
-          project_id: project?.id
+          currency: 'NGN',
+          project_id: selectedProject || project?.id
         }
       });
 
@@ -80,24 +115,43 @@ const InvestmentModal = ({ project, onInvestmentSuccess }: { project?: any, onIn
         </DialogHeader>
         
         <div className="space-y-4">
-          {project && (
+          {!project && (
+            <div className="space-y-2">
+              <Label htmlFor="project">Select Investment Project</Label>
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((proj) => (
+                    <SelectItem key={proj.id} value={proj.id}>
+                      {proj.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          
+          {(project || (selectedProject && projects.find(p => p.id === selectedProject))) && (
             <Card>
               <CardHeader>
-                <CardTitle>{project.name}</CardTitle>
-                <CardDescription>{project.description}</CardDescription>
+                <CardTitle>{project?.name || projects.find(p => p.id === selectedProject)?.name}</CardTitle>
+                <CardDescription>{project?.description || projects.find(p => p.id === selectedProject)?.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Target</span>
-                  <span className="text-sm font-bold">${project.target_amount.toLocaleString()}</span>
+                  <span className="text-sm font-bold">₦{(project?.target_amount || projects.find(p => p.id === selectedProject)?.target_amount || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Raised</span>
-                  <span className="text-sm font-bold">${project.current_amount.toLocaleString()}</span>
+                  <span className="text-sm font-bold">₦{(project?.current_amount || projects.find(p => p.id === selectedProject)?.current_amount || 0).toLocaleString()}</span>
                 </div>
               </CardContent>
             </Card>
           )}
+          
           <div className="space-y-2">
             <Label htmlFor="amount">Investment Amount (NGN)</Label>
             <div className="relative">

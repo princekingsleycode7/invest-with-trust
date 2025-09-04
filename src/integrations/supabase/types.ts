@@ -23,6 +23,7 @@ export type Database = {
           investment_type: string | null
           korapay_reference: string | null
           notes: string | null
+          project_id: string | null
           reference: string
           status: string
           updated_at: string
@@ -36,6 +37,7 @@ export type Database = {
           investment_type?: string | null
           korapay_reference?: string | null
           notes?: string | null
+          project_id?: string | null
           reference: string
           status?: string
           updated_at?: string
@@ -49,12 +51,21 @@ export type Database = {
           investment_type?: string | null
           korapay_reference?: string | null
           notes?: string | null
+          project_id?: string | null
           reference?: string
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "investments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -98,6 +109,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verification_status?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          current_amount: number
+          description: string
+          id: string
+          name: string
+          status: string
+          target_amount: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_amount?: number
+          description: string
+          id?: string
+          name: string
+          status?: string
+          target_amount: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_amount?: number
+          description?: string
+          id?: string
+          name?: string
+          status?: string
+          target_amount?: number
+          updated_at?: string
         }
         Relationships: []
       }
