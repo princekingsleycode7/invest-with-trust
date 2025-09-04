@@ -272,7 +272,9 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold text-foreground mb-2">Investment Dashboard</h1>
         <p className="text-muted-foreground">Track your investments and portfolio performance</p>
       </div>
-
+  <Link to="/projects">
+    <Button>View Projects</Button>
+  </Link>
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
