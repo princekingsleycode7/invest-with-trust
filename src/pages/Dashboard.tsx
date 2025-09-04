@@ -414,11 +414,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Recent Investments Table */}
+      {/* Recent Investments Table - Only show active/confirmed investments */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Recent Investments</CardTitle>
+            <CardTitle>Recent Confirmed Investments</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -429,23 +429,29 @@ const Dashboard = () => {
                   <th className="px-6 py-3">Investment</th>
                   <th className="px-6 py-3">Amount</th>
                   <th className="px-6 py-3">Date</th>
+                  <th className="px-6 py-3">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {investments.length === 0 ? (
+                {investments.filter(inv => inv.status === 'active').length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="text-center py-12 text-muted-foreground">
-                      No recent investments found.
+                    <td colSpan={4} className="text-center py-12 text-muted-foreground">
+                      No confirmed investments found.
                     </td>
                   </tr>
                 ) : (
-                  investments.map((investment) => (
-                    <tr key={investment.id} className="border-b hover:bg-muted/50">
-                      <td className="px-6 py-4 font-medium text-foreground">{investment.name}</td>
-                      <td className="px-6 py-4">${investment.amount.toLocaleString()}</td>
-                      <td className="px-6 py-4">{new Date(investment.created_at).toLocaleDateString()}</td>
-                    </tr>
-                  ))
+                  investments
+                    .filter(inv => inv.status === 'active')
+                    .map((investment) => (
+                      <tr key={investment.id} className="border-b hover:bg-muted/50">
+                        <td className="px-6 py-4 font-medium text-foreground">{investment.name}</td>
+                        <td className="px-6 py-4">${investment.amount.toLocaleString()}</td>
+                        <td className="px-6 py-4">{new Date(investment.created_at).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">
+                          <Badge variant="default">Confirmed</Badge>
+                        </td>
+                      </tr>
+                    ))
                 )}
               </tbody>
             </table>
