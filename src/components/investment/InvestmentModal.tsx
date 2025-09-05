@@ -18,7 +18,7 @@ interface Project {
   status: string;
 }
 
-const InvestmentModal = ({ project, onInvestmentSuccess }: { project?: Project, onInvestmentSuccess?: () => void }) => {
+const InvestmentModal = ({ project, onInvestmentSuccess, disabled }: { project?: Project, onInvestmentSuccess?: () => void, disabled?: boolean }) => {
   const [amount, setAmount] = useState("");
   const [selectedProject, setSelectedProject] = useState<string>(project?.id || "");
   const [projects, setProjects] = useState<Project[]>([]);
@@ -101,7 +101,7 @@ const InvestmentModal = ({ project, onInvestmentSuccess }: { project?: Project, 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="flex items-center gap-2 w-full">
+        <Button className="flex items-center gap-2 w-full" disabled={disabled}>
           <TrendingUp className="h-4 w-4" />
           {project ? "Invest in Project" : "Make Investment"}
         </Button>
