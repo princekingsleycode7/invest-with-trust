@@ -9,6 +9,10 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
 import ProjectsPage from "./pages/ProjectsPage";
+import AdminPage from "./pages/AdminPage";
+import HowItWorksPage from "./pages/HowItWorksPage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,7 +36,7 @@ const App = () => (
               } 
             />
 
-              <Route 
+            <Route 
               path="/projects" 
               element={
                 <ProtectedRoute>
@@ -40,6 +44,17 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <AdminPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
