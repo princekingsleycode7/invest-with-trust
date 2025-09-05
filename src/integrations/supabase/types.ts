@@ -14,6 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
+      competitive_advantages: {
+        Row: {
+          advantage: string
+          created_at: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          advantage: string
+          created_at?: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          advantage?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitive_advantages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_projections: {
+        Row: {
+          created_at: string
+          id: string
+          net_profit: number
+          operating_expenses: number
+          project_id: string
+          revenue: number
+          roi: number
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          net_profit: number
+          operating_expenses: number
+          project_id: string
+          revenue: number
+          roi: number
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          net_profit?: number
+          operating_expenses?: number
+          project_id?: string
+          revenue?: number
+          roi?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_projections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_breakdown: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          id: string
+          percentage: number
+          project_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          id?: string
+          percentage: number
+          project_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          id?: string
+          percentage?: number
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_breakdown_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       investments: {
         Row: {
           amount: number
@@ -112,6 +217,80 @@ export type Database = {
         }
         Relationships: []
       }
+      project_details: {
+        Row: {
+          annual_return_range_max: number | null
+          annual_return_range_min: number | null
+          annual_revenue_projection_max: number | null
+          annual_revenue_projection_min: number | null
+          breakeven_point: string | null
+          business_overview: string
+          created_at: string
+          equipment_investment: number | null
+          executive_summary: string
+          full_roi_period: string | null
+          id: string
+          market_opportunity: string
+          monthly_revenue_potential_max: number | null
+          monthly_revenue_potential_min: number | null
+          name: string
+          production_capacity: string | null
+          selling_price: number | null
+          total_funding_needed: number | null
+          updated_at: string
+        }
+        Insert: {
+          annual_return_range_max?: number | null
+          annual_return_range_min?: number | null
+          annual_revenue_projection_max?: number | null
+          annual_revenue_projection_min?: number | null
+          breakeven_point?: string | null
+          business_overview: string
+          created_at?: string
+          equipment_investment?: number | null
+          executive_summary: string
+          full_roi_period?: string | null
+          id: string
+          market_opportunity: string
+          monthly_revenue_potential_max?: number | null
+          monthly_revenue_potential_min?: number | null
+          name: string
+          production_capacity?: string | null
+          selling_price?: number | null
+          total_funding_needed?: number | null
+          updated_at?: string
+        }
+        Update: {
+          annual_return_range_max?: number | null
+          annual_return_range_min?: number | null
+          annual_revenue_projection_max?: number | null
+          annual_revenue_projection_min?: number | null
+          breakeven_point?: string | null
+          business_overview?: string
+          created_at?: string
+          equipment_investment?: number | null
+          executive_summary?: string
+          full_roi_period?: string | null
+          id?: string
+          market_opportunity?: string
+          monthly_revenue_potential_max?: number | null
+          monthly_revenue_potential_min?: number | null
+          name?: string
+          production_capacity?: string | null
+          selling_price?: number | null
+          total_funding_needed?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_details_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
@@ -145,18 +324,125 @@ export type Database = {
         }
         Relationships: []
       }
+      revenue_model: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          price_range_max: number
+          price_range_min: number
+          project_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          price_range_max: number
+          price_range_min: number
+          project_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          price_range_max?: number
+          price_range_min?: number
+          project_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_model_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_impact: {
+        Row: {
+          created_at: string
+          id: string
+          impact: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          impact: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          impact?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_impact_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      assign_admin_role: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      increment_project_amount: {
+        Args: { amount_to_add: number; p_id: string }
+        Returns: undefined
+      }
       increment_total_invested: {
         Args: { amount_param: number; user_id_param: string }
         Returns: undefined
       }
+      increment_user_total_invested: {
+        Args: { amount_to_add: number; p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -283,6 +569,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
