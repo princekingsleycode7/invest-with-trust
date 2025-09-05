@@ -8,6 +8,7 @@ import InvestmentModal from "@/components/investment/InvestmentModal";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { mockProjects, mockProjectDetails } from "@/data/projectsMockData";
 
 interface Investment {
   id: string;
@@ -45,7 +46,12 @@ const Dashboard = () => {
     profitPercentage: 0,
   });
   const [investments, setInvestments] = useState<Investment[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects] = useState<Project[]>(mockProjects);
+  
+  
+  //const [projects, setProjects] = useState<Project[]>([]);
+  //live from db. above is mock data
+  
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
@@ -77,8 +83,8 @@ const Dashboard = () => {
         .from('projects')
         .select('*');
 
-      if (projectsError) throw projectsError;
-      setProjects(projectsData || []);
+      //if (projectsError) throw projectsError;
+      //setProjects(projectsData || []);
 
       const calculatedCurrentValue = (profile?.total_invested || 0) + (profile?.total_profit || 0);
       const profitPercentage = profile?.total_invested > 0 ? ((profile?.total_profit || 0) / profile.total_invested) * 100 : 0;
@@ -272,7 +278,7 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold text-foreground mb-2">Investment Dashboard</h1>
         <p className="text-muted-foreground">Track your investments and portfolio performance</p>
       </div>
-  <Link to="/projects">
+  <Link to="/projects" className="mb-6 inline-block">
     <Button>View Projects</Button>
   </Link>
       {/* Stats Grid */}
