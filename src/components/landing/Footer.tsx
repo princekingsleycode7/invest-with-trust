@@ -22,11 +22,11 @@ const Footer = () => {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
-                <span>+1 (555) 123-4567</span>
+                <span>+234 701-373-0718</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <span>123 Financial District, New York, NY 10004</span>
+                <span>Amaco Estate, Iriegbe, Oyibo, Rivers State, Nigeria</span>
               </div>
             </div>
           </div>

@@ -25,7 +25,7 @@ const Hero = () => {
               Learn More
             </Button>
           </div>
-
+          <div className="my-12 flex justify-center">   </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
             <div className="flex flex-col items-center text-center">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">

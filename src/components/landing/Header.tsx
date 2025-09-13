@@ -65,25 +65,17 @@ const Header = () => {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <span className="text-sm text-muted-foreground">
-                  Welcome, {user.email}
-                </span>
-                <Button variant="ghost" onClick={handleSignOut}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
+                
                 <Link to="/dashboard">
-                  <Button>Dashboard</Button>
+                  <Button variant="link">Dashboard</Button>
                 </Link>
               </>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost">Sign In</Button>
+                  <Button variant="outline">Sign In</Button>
                 </Link>
-                <Link to="/auth">
-                  <Button>Get Started</Button>
-                </Link>
+                
               </>
             )}
           </div>
