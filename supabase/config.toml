@@ -5,3 +5,15 @@ verify_jwt = true
 
 [functions.chat]
 verify_jwt = false
+
+[functions.korapay-webhook]
+verify_jwt = false
+
+[functions.korapay-webhook-new]
+verify_jwt = false
+
+[functions.test-working]
+verify_jwt = false
+
+[functions.untested-create-investment]
+verify_jwt = true
