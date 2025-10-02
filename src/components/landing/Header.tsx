@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Building2, LogOut } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Building2, Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { MobileMenu } from "@/components/ui/mobile-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState } from "react";
 
 const Header = () => {
   const { user, signOut, loading } = useAuthContext();
   const { toast } = useToast();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Don't render until auth context is ready
   if (loading) {
@@ -75,19 +75,70 @@ const Header = () => {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                
-                <Link to="/dashboard">
+                <Link to="/dashboard" className="hidden md:block">
                   <Button variant="link">Dashboard</Button>
                 </Link>
               </>
             ) : (
               <>
-                <Link to="/auth">
+                <Link to="/auth" className="hidden md:block">
                   <Button variant="outline">Sign In</Button>
                 </Link>
-                
               </>
             )}
+            
+            {/* Mobile Menu */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <Link 
+                    to="/how-it-works" 
+                    className="text-lg font-medium hover:text-primary transition-colors py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    How It Works
+                  </Link>
+                  <Link 
+                    to="/projects" 
+                    className="text-lg font-medium hover:text-primary transition-colors py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Projects
+                  </Link>
+                  <Link 
+                    to="/about" 
+                    className="text-lg font-medium hover:text-primary transition-colors py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    About
+                  </Link>
+                  <Link 
+                    to="/contact" 
+                    className="text-lg font-medium hover:text-primary transition-colors py-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Contact
+                  </Link>
+                  
+                  <div className="border-t pt-4 mt-4">
+                    {user ? (
+                      <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                        <Button className="w-full">Dashboard</Button>
+                      </Link>
+                    ) : (
+                      <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                        <Button className="w-full">Sign In</Button>
+                      </Link>
+                    )}
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>

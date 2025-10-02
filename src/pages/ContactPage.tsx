@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Building2, Mail, Phone, MapPin, MessageCircle, Send, User, MessageSquare } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, MessageCircle, Send, User, MessageSquare, Loader2, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
+import { streamChat } from "@/utils/chatStream";
+
+type Message = { role: "user" | "assistant"; content: string };
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -18,16 +21,8 @@ const ContactPage = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [chatMessages, setChatMessages] = useState([
-    {
-      id: 1,
-      text: "Hello! I'm RehobothBot, your AI assistant. How can I help you today?",
-      isBot: true,
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [chatInput, setChatInput] = useState('');
-  const [isChatting, setIsChatting] = useState(false);
   const { toast } = useToast();
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -69,8 +64,9 @@ const ContactPage = () => {
 
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chatInput.trim()) return;
+    if (!chatInput.trim() || isLoading) return;
 
+    // Add user message
     const userMessage = {
       id: chatMessages.length + 1,
       text: chatInput,
@@ -78,51 +74,19 @@ const ContactPage = () => {
       timestamp: new Date()
     };
     
-    const newMessages = [...chatMessages, userMessage];
-    setChatMessages(newMessages);
+    setChatMessages(prev => [...prev, userMessage]);
     setChatInput('');
-    setIsChatting(true);
 
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          history: chatMessages.map(msg => ({
-            role: msg.isBot ? 'model' : 'user',
-            parts: [{ text: msg.text }]
-          })),
-          question: chatInput,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response from AI');
-      }
-
-      const data = await response.json();
-
+    // Simulate bot response
+    setTimeout(() => {
       const botResponse = {
-        id: newMessages.length + 1,
-        text: data.text,
+        id: chatMessages.length + 2,
+        text: "Thank you for your question. I'm currently a UI demonstration. The AI integration will be implemented separately. For immediate assistance, please use our contact form or call us directly.",
         isBot: true,
         timestamp: new Date()
       };
       setChatMessages(prev => [...prev, botResponse]);
-
-    } catch (error) {
-      const errorResponse = {
-        id: newMessages.length + 1,
-        text: "Sorry, I'm having trouble connecting. Please try again later.",
-        isBot: true,
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, errorResponse]);
-    } finally {
-      setIsChatting(false);
-    }
+    }, 1000);
   };
 
   const contactInfo = [
@@ -278,31 +242,52 @@ const ContactPage = () => {
                 <CardContent className="flex-1 flex flex-col">
                   {/* Chat Messages */}
                   <div className="flex-1 border rounded-lg p-4 mb-4 overflow-y-auto space-y-4 bg-muted/5">
-                    {chatMessages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-                      >
-                        <div
-                          className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                            message.isBot
-                              ? 'bg-muted text-muted-foreground'
-                              : 'bg-primary text-primary-foreground'
-                          }`}
-                        >
-                          {message.isBot && (
-                            <div className="flex items-center gap-2 mb-1">
-                              <MessageSquare className="h-3 w-3" />
-                              <span className="text-xs font-medium">RehobothBot</span>
-                            </div>
-                          )}
-                          <p className="text-sm">{message.text}</p>
-                          <p className="text-xs opacity-70 mt-1">
-                            {message.timestamp.toLocaleTimeString()}
-                          </p>
-                        </div>
+                    {messages.length === 0 ? (
+                      <div className="text-center text-muted-foreground py-12">
+                        <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="font-medium">Start a conversation with our AI assistant</p>
+                        <p className="text-sm mt-2">Ask about our investment opportunities, projects, or how to get started</p>
                       </div>
-                    ))}
+                    ) : (
+                      <>
+                        {messages.map((msg, idx) => (
+                          <div
+                            key={idx}
+                            className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                          >
+                            {msg.role === "assistant" && (
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                                <Bot className="h-5 w-5 text-primary-foreground" />
+                              </div>
+                            )}
+                            <div
+                              className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                                msg.role === "user"
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-muted text-foreground"
+                              }`}
+                            >
+                              <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+                            {msg.role === "user" && (
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                                <User className="h-5 w-5 text-secondary-foreground" />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
+                          <div className="flex gap-3 justify-start">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                              <Bot className="h-5 w-5 text-primary-foreground" />
+                            </div>
+                            <div className="bg-muted rounded-lg px-4 py-2">
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
 
                   {/* Chat Input */}
@@ -312,9 +297,10 @@ const ContactPage = () => {
                       onChange={(e) => setChatInput(e.target.value)}
                       placeholder="Type your message..."
                       className="flex-1"
+                      disabled={isLoading}
                     />
-                    <Button type="submit" disabled={!chatInput.trim() || isChatting}>
-                      {isChatting ? 'Thinking...' : <Send className="h-4 w-4" />}
+                    <Button type="submit" disabled={!chatInput.trim()}>
+                      <Send className="h-4 w-4" />
                     </Button>
                   </form>
                 </CardContent>
