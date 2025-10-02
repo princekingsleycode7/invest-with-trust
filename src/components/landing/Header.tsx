@@ -1,12 +1,16 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Building2, LogOut } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { MobileMenu } from "@/components/ui/mobile-menu";
 
 const Header = () => {
   const { user, signOut, loading } = useAuthContext();
   const { toast } = useToast();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Don't render until auth context is ready
   if (loading) {
@@ -14,10 +18,10 @@ const Header = () => {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <Building2 className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold text-foreground">RehobothBank</span>
-            </div>
+            </Link>
             <div className="flex items-center gap-4">
               <div className="animate-pulse h-8 w-20 bg-muted rounded"></div>
             </div>
@@ -42,10 +46,10 @@ const Header = () => {
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Building2 className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold text-foreground">RehobothBank</span>
-          </div>
+          </Link>
 
           <nav className="hidden md:flex items-center gap-8">
             <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -61,6 +65,12 @@ const Header = () => {
               Contact
             </Link>
           </nav>
+
+          <MobileMenu 
+            isOpen={isMobileMenuOpen}
+            onToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            user={user}
+          />
 
           <div className="flex items-center gap-4">
             {user ? (

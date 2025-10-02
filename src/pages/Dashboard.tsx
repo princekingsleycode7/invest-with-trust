@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Building2, TrendingUp, Wallet, Settings, BarChart3, DollarSign } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import InvestmentModal from "@/components/investment/InvestmentModal";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { mockProjects, mockProjectDetails } from "@/data/projectsMockData";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
 interface Investment {
   id: string;

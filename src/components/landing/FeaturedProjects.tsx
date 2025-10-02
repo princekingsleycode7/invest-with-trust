@@ -3,43 +3,20 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Target, TrendingUp } from "lucide-react";
 
+import { mockProjects } from "@/data/projectsMockData";
+
 const FeaturedProjects = () => {
-  const projects = [
-    {
-      id: "9c124a52-2cb8-4166-9636-d3280b4d7986",
-    name: "Charcoal Briquette Manufacturing Company",
-    description: "Converting sawdust waste into high-quality fuel briquettes for commercial and domestic use in Nigeria",
-    fundingGoal: 15000000,
-      currentFunding: 8500000,
-      profitPercentage: 25.5,
-      payPeriod: "Monthly",
-      status: "Open",
-      image: "https://images.unsplash.com/photo-1469289759076-d1484757abc3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwbWFudWZhY3R1cmluZyUyMGluZHVzdHJpYWwlMjBtYWNoaW5lcnl8ZW58MHwwfHx8MTc1NzAwNjY2OHww&ixlib=rb-4.1.0&q=85"
-    },
-    {
-      id: "49389018-0f07-446d-aa5d-2c5c27da70e0", 
-    name: "Green Energy Solar Farm",
-    description: "Large-scale solar energy project with guaranteed government contracts",
-       fundingGoal: 750000,
-      currentFunding: 680000,
-      profitPercentage: 15,
-      payPeriod: "Quarterly",
-      status: "Open",
-       image: "https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxzb2xhciUyMHBhbmVscyUyMHJlbmV3YWJsZSUyMGVuZXJneSUyMHNvbGFyJTIwZmFybSUyMHBob3Rvdm9sdGFpY3xlbnwwfDB8fGJsdWV8MTc1NzAwNjY2N3ww&ixlib=rb-4.1.0&q=85"
-    },
-    {
-      id: "6b4ef312-9c09-488e-86fa-d0eeaf2a242b",
-    name: "Urban Real Estate Development", 
-    description: "Mixed-use development in prime downtown location",
-    fundingGoal: 300000,
-      currentFunding: 300000,
-      profitPercentage: 18,
-      payPeriod: "Quaterly",
-      status: "Live", 
-      image: "https://images.unsplash.com/photo-1640184713822-174b6e94df51?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwzfHxza3lzY3JhcGVycyUyMHVyYmFuJTIwZGV2ZWxvcG1lbnQlMjBjb25zdHJ1Y3Rpb24lMjBkb3dudG93bnxlbnwwfDB8fHwxNzU3MDA2NjY4fDA&ixlib=rb-4.1.0&q=85"
- 
-    }
-  ];
+  const projects = mockProjects.slice(0, 3).map(project => ({
+    id: project.id,
+    name: project.name,
+    description: project.description,
+    fundingGoal: project.target_amount,
+    currentFunding: project.current_amount,
+    profitPercentage: project.projected_return,
+    payPeriod: project.pay_period,
+    status: project.status,
+    image: project.image_url
+  }));
 
   return (
     <section className="py-20">
@@ -59,7 +36,10 @@ const FeaturedProjects = () => {
             
             return (
               <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-48 bg-gradient-to-br from-primary/10 to-accent/5"></div>
+                <div 
+                  className="h-48 bg-cover bg-center" 
+                  style={{ backgroundImage: `url(${project.image})` }}
+                ></div>
                 
                 <CardHeader className="pb-4">
                   <div className="flex justify-between items-start mb-2">

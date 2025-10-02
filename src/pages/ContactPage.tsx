@@ -27,6 +27,7 @@ const ContactPage = () => {
     }
   ]);
   const [chatInput, setChatInput] = useState('');
+  const [isChatting, setIsChatting] = useState(false);
   const { toast } = useToast();
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -34,8 +35,19 @@ const ContactPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate form submission
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
       
       toast({
         title: "Message Sent",
@@ -44,9 +56,10 @@ const ContactPage = () => {
       
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to send message';
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: message,
         variant: "destructive"
       });
     } finally {
@@ -54,11 +67,10 @@ const ContactPage = () => {
     }
   };
 
-  const handleChatSubmit = (e: React.FormEvent) => {
+  const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
-    // Add user message
     const userMessage = {
       id: chatMessages.length + 1,
       text: chatInput,
@@ -66,19 +78,51 @@ const ContactPage = () => {
       timestamp: new Date()
     };
     
-    setChatMessages(prev => [...prev, userMessage]);
+    const newMessages = [...chatMessages, userMessage];
+    setChatMessages(newMessages);
     setChatInput('');
+    setIsChatting(true);
 
-    // Simulate bot response
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          history: chatMessages.map(msg => ({
+            role: msg.isBot ? 'model' : 'user',
+            parts: [{ text: msg.text }]
+          })),
+          question: chatInput,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response from AI');
+      }
+
+      const data = await response.json();
+
       const botResponse = {
-        id: chatMessages.length + 2,
-        text: "Thank you for your question. I'm currently a UI demonstration. The AI integration will be implemented separately. For immediate assistance, please use our contact form or call us directly.",
+        id: newMessages.length + 1,
+        text: data.text,
         isBot: true,
         timestamp: new Date()
       };
       setChatMessages(prev => [...prev, botResponse]);
-    }, 1000);
+
+    } catch (error) {
+      const errorResponse = {
+        id: newMessages.length + 1,
+        text: "Sorry, I'm having trouble connecting. Please try again later.",
+        isBot: true,
+        timestamp: new Date()
+      };
+      setChatMessages(prev => [...prev, errorResponse]);
+    } finally {
+      setIsChatting(false);
+    }
   };
 
   const contactInfo = [
@@ -269,8 +313,8 @@ const ContactPage = () => {
                       placeholder="Type your message..."
                       className="flex-1"
                     />
-                    <Button type="submit" disabled={!chatInput.trim()}>
-                      <Send className="h-4 w-4" />
+                    <Button type="submit" disabled={!chatInput.trim() || isChatting}>
+                      {isChatting ? 'Thinking...' : <Send className="h-4 w-4" />}
                     </Button>
                   </form>
                 </CardContent>
